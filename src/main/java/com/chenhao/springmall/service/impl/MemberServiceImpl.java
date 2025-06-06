@@ -1,5 +1,6 @@
 package com.chenhao.springmall.service.impl;
 
+import com.chenhao.springmall.constant.K;
 import com.chenhao.springmall.model.Member;
 import com.chenhao.springmall.model.MemberHasRole;
 import com.chenhao.springmall.model.MemberRegisterRequest;
@@ -9,10 +10,13 @@ import com.chenhao.springmall.repository.MemberRepository;
 import com.chenhao.springmall.repository.RoleRepository;
 import com.chenhao.springmall.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +37,7 @@ public class MemberServiceImpl implements MemberService {
 
 
 
-
+    @Transactional
     @Override
     public Integer register(MemberRegisterRequest memberRegisterRequest) {
         // 省略參數檢查 (ex: email 是否被註冊過)
@@ -106,10 +110,27 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     @Override
     public void deleteById(Integer memberId) {
-        memberRepository.deleteById(memberId);
-        memberHasRoleRepository.deleteByMemberId(memberId);
-        //memberHasRoleRepository.deleteById();
+        //檢查是否有該會員
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到會員，ID: " + memberId));
+
+        //檢查該會員是否有ADMIN 權限
+        List<MemberHasRole> memberHasRoleList = memberHasRoleRepository.findByMemberId(memberId);
+        for (MemberHasRole memberHasRole : memberHasRoleList) {
+            Boolean isAdmin = memberHasRole.getRoleId().equals(K.ADMIN);
+            if(isAdmin){
+                throw new IllegalArgumentException("無法刪除具有 ADMIN 權限的帳號");
+            }
+        }
+
+
+        if(member != null){
+            memberRepository.deleteById(memberId);
+            memberHasRoleRepository.deleteByMemberId(memberId);
+        }
     }
 }

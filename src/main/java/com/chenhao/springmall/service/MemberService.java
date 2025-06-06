@@ -3,9 +3,7 @@ package com.chenhao.springmall.service;
 import com.chenhao.springmall.model.Member;
 import com.chenhao.springmall.model.MemberRegisterRequest;
 import com.chenhao.springmall.model.Role;
-import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+
 
 import java.util.List;
 
