@@ -2,6 +2,7 @@ package com.chenhao.springmall.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import static com.chenhao.springmall.constant.RoleConstants.*;
 
 @EnableMethodSecurity
 @EnableWebSecurity
@@ -27,8 +30,9 @@ public class MySecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/members/**").hasRole("ADMIN")
-                        .requestMatchers("/products").hasAnyRole("ADMIN","NORMAL_MEMBER","MERCHANT")
+                        .requestMatchers("**").hasRole(ADMIN)
+                        .requestMatchers("/products/**").hasAnyRole(MERCHANT)
+                        .requestMatchers(HttpMethod.GET,"/products").hasAnyRole(MERCHANT,NORMAL_MEMBER)
                         .requestMatchers("/register").permitAll()
                         .anyRequest().denyAll()
                 )

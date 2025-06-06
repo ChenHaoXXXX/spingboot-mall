@@ -1,7 +1,7 @@
 package com.chenhao.springmall.service;
 
 import com.chenhao.springmall.model.Member;
-import com.chenhao.springmall.model.MemberRegisterRequest;
+import com.chenhao.springmall.dto.MemberRegisterRequest;
 import com.chenhao.springmall.model.Role;
 
 

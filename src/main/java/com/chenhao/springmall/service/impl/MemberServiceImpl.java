@@ -1,18 +1,16 @@
 package com.chenhao.springmall.service.impl;
 
-import com.chenhao.springmall.constant.K;
+import com.chenhao.springmall.constant.RoleConstants;
 import com.chenhao.springmall.model.Member;
 import com.chenhao.springmall.model.MemberHasRole;
-import com.chenhao.springmall.model.MemberRegisterRequest;
+import com.chenhao.springmall.dto.MemberRegisterRequest;
 import com.chenhao.springmall.model.Role;
 import com.chenhao.springmall.repository.MemberHasRoleRepository;
 import com.chenhao.springmall.repository.MemberRepository;
 import com.chenhao.springmall.repository.RoleRepository;
 import com.chenhao.springmall.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +32,6 @@ public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
 
 
     @Transactional
@@ -92,21 +89,19 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member modifyMemberAccount(Integer memberId,MemberRegisterRequest memberRegisterRequest) {
-        Member member = memberRepository.findById(memberId).orElse(null);
-        if(member == null) {
-            return null;
-        }else {
-            member.setEmail(memberRegisterRequest.getEmail());
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到會員 ID: " + memberId));
+        member.setEmail(memberRegisterRequest.getEmail());
 
-            // hash 原始密碼
-            String hashedPassword = passwordEncoder.encode(memberRegisterRequest.getPassword());
-            member.setPassword(hashedPassword);
+        // hash 原始密碼
+        String hashedPassword = passwordEncoder.encode(memberRegisterRequest.getPassword());
+        member.setPassword(hashedPassword);
 
-            member.setName(memberRegisterRequest.getName());
-            member.setLastModifiedDate(new Date());
-            Member memberSave = memberRepository.save(member);
-            return memberSave;
-        }
+        member.setName(memberRegisterRequest.getName());
+        member.setLastModifiedDate(new Date());
+        Member memberSave = memberRepository.save(member);
+        return memberSave;
+
 
     }
 
@@ -121,7 +116,7 @@ public class MemberServiceImpl implements MemberService {
         //檢查該會員是否有ADMIN 權限
         List<MemberHasRole> memberHasRoleList = memberHasRoleRepository.findByMemberId(memberId);
         for (MemberHasRole memberHasRole : memberHasRoleList) {
-            Boolean isAdmin = memberHasRole.getRoleId().equals(K.ADMIN);
+            Boolean isAdmin = memberHasRole.getRoleId().equals(RoleConstants.ADMIN_NUMBER);
             if(isAdmin){
                 throw new IllegalArgumentException("無法刪除具有 ADMIN 權限的帳號");
             }

@@ -1,10 +1,11 @@
-package com.chenhao.springmall.model;
+package com.chenhao.springmall.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
 public class MemberRegisterRequest {
     @NotBlank
     private String email;
+
     @NotBlank
     private String password;
 

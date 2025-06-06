@@ -9,8 +9,10 @@ public class MemberHasRole {
     @Column(name = "member_has_role_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer memberHasRoleId;
+
     @Column(name = "member_id")
     Integer memberId;
+
     @Column(name = "role_id")
     Integer roleId;
 

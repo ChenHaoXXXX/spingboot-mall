@@ -1,7 +1,7 @@
 package com.chenhao.springmall.controller;
 
 import com.chenhao.springmall.model.Member;
-import com.chenhao.springmall.model.MemberRegisterRequest;
+import com.chenhao.springmall.dto.MemberRegisterRequest;
 import com.chenhao.springmall.service.MemberService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +33,7 @@ public class MemberController {
     public ResponseEntity<Member> modifyUserAccount(@RequestBody @Valid MemberRegisterRequest memberRegisterRequest,
                                                   @PathVariable Integer memberId) {
         Member member = memberService.modifyMemberAccount(memberId,memberRegisterRequest);
-        if(member == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(member);
-        }
-
+        return ResponseEntity.status(HttpStatus.OK).body(member);
     }
 
     @DeleteMapping("/members/{memberId}")
