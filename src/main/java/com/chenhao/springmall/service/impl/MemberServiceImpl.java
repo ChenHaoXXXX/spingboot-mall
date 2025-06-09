@@ -105,6 +105,7 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    //只有 ADMIN權限 才能執行
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     @Override
@@ -122,10 +123,7 @@ public class MemberServiceImpl implements MemberService {
             }
         }
 
-
-        if(member != null){
-            memberRepository.deleteById(memberId);
-            memberHasRoleRepository.deleteByMemberId(memberId);
-        }
+        memberRepository.deleteById(memberId);
+        memberHasRoleRepository.deleteByMemberId(memberId);
     }
 }

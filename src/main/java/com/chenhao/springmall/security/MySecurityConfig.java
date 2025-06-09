@@ -30,10 +30,16 @@ public class MySecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("**").hasRole(ADMIN)
-                        .requestMatchers("/products/**").hasAnyRole(MERCHANT)
-                        .requestMatchers(HttpMethod.GET,"/products").hasAnyRole(MERCHANT,NORMAL_MEMBER)
+                        //創建帳號
                         .requestMatchers("/register").permitAll()
+                        //操作帳號
+                        .requestMatchers("/members/**").hasRole(ADMIN)
+                        //查詢商品清單
+                        .requestMatchers(HttpMethod.GET,"/products").hasAnyRole(NORMAL_MEMBER,MERCHANT,ADMIN)
+                        //查詢指定商品
+                        .requestMatchers(HttpMethod.GET,"/products/*").hasAnyRole(NORMAL_MEMBER,MERCHANT,ADMIN)
+                        //操作商品
+                        .requestMatchers("/products/**").hasAnyRole(MERCHANT,ADMIN)
                         .anyRequest().denyAll()
                 )
                 .build();
