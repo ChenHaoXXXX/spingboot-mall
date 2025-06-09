@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>註冊頁面</title>
+</head>
+<body>
+<h1>註冊新帳號</h1>
+
+<form th:action="@{/register}" method="post">
+    <div>
+        <label for="email">電子郵件：</label>
+        <input type="email" id="email" name="email" required />
+    </div>
+    <div>
+        <label for="password">密碼：</label>
+        <input type="password" id="password" name="password" required />
+    </div>
+    <div>
+        <label for="name">姓名：</label>
+        <input type="text" id="name" name="name" required />
+    </div>
+    <div>
+        <button type="submit">註冊</button>
+    </div>
+</form>
+
+<div>
+    <a th:href="@{/login}">
+        <button type="button">回登入頁</button>
+    </a>
+</div>
+
+
+
+<script th:inline="javascript">
+    let registerSuccess = [[${registerSuccess}]];  <!--Thymeleaf 的 JavaScript 表達式語法  -->
+    if (registerSuccess === true) {
+        alert("註冊成功！");
+        window.location.href = "/login";
+    } else if (registerSuccess === false) {
+        alert("註冊失敗，請再試一次！");
+    }
+</script>
+</body>
+</html>

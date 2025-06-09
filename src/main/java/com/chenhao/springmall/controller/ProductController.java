@@ -9,12 +9,14 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
-@RestController
+@Controller
 public class ProductController {
 //    @GetMapping("/products")
 //    public String welcome(Authentication authentication) {
@@ -30,12 +32,18 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
+    //進入網站首頁
+    @GetMapping("/")
+    public String redirectToProducts(Model model) {
+        return "redirect:/products";
+    }
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProducts(
+    public String getProducts(
             //查詢條件 Filtering
             @RequestParam(required = false) ProductCategory category,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            Model model
     ) {
         //TODO: 尚未實作條件查詢
 
@@ -45,12 +53,13 @@ public class ProductController {
 
         // 取得 product list
         List<Product> products = productService.getProducts(productQueryParams);
-
+        model.addAttribute("products", products); // 加到 model，傳給 Thymeleaf
         // 取得 product 總數
         Integer count = productService.countProduct(productQueryParams);
 
-        return ResponseEntity.status(HttpStatus.OK).body(products);
+        return "products";
     }
+
 
     @GetMapping("/products/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {

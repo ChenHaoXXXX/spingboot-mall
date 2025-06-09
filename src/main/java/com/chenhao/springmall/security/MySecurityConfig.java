@@ -28,18 +28,23 @@ public class MySecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/products", true)
+                        .failureUrl("/login?error")
+                        .permitAll()
+                )
                 .authorizeHttpRequests(request -> request
                         //創建帳號
                         .requestMatchers("/register").permitAll()
                         //操作帳號
                         .requestMatchers("/members/**").hasRole(ADMIN)
-                        //查詢商品清單
-                        .requestMatchers(HttpMethod.GET,"/products").hasAnyRole(NORMAL_MEMBER,MERCHANT,ADMIN)
-                        //查詢指定商品
-                        .requestMatchers(HttpMethod.GET,"/products/*").hasAnyRole(NORMAL_MEMBER,MERCHANT,ADMIN)
+                        //查詢指定商品、商品清單
+                        .requestMatchers(HttpMethod.GET,"/products/*","/products").hasAnyRole(NORMAL_MEMBER,MERCHANT,ADMIN)
                         //操作商品
                         .requestMatchers("/products/**").hasAnyRole(MERCHANT,ADMIN)
+                        // 管理員專用
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll()
                 )
                 .build();

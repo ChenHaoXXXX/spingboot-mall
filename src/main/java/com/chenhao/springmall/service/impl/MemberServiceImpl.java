@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
+import static com.chenhao.springmall.constant.RoleConstants.NORMAL_MEMBER_NUMBER;
+
 @Component
 public class MemberServiceImpl implements MemberService {
 
@@ -60,10 +62,10 @@ public class MemberServiceImpl implements MemberService {
 
         Integer memberId = memberRepository.save(member).getMemberId();
 
-        //在資料庫中插入 Member Role 會員權限
+         //在資料庫中插入 Member Role 會員權限
         MemberHasRole memberHasRole = new MemberHasRole();
         memberHasRole.setMemberId(memberId);
-        memberHasRole.setRoleId(2);
+        memberHasRole.setRoleId(NORMAL_MEMBER_NUMBER); //設定普通會員權限
         memberHasRoleRepository.save(memberHasRole);
 
         return memberId;

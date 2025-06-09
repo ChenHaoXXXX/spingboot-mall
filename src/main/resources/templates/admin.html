@@ -1,0 +1,20 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin 後台</title>
+</head>
+<body>
+<h1>歡迎進入管理者後台</h1>
+<a th:href="@{/logout}"><button>登出</button></a>
+<a th:href="@{/products}"><button>回首頁</button></a>
+<p>這裡可以查詢、修改、刪除會員資料。</p>
+<form onsubmit="queryMemberById(); return false;">
+    <label for="memberIdInput">輸入會員 ID：</label>
+    <input type="number" id="memberIdInput" name="memberId" required>
+    <button type="submit">查詢</button>
+</form>
+
+</body>
+</html>
