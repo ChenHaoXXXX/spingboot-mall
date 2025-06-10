@@ -36,7 +36,10 @@ public class MyUserDetailsService implements UserDetailsService {
 
             // 權限部分
             List<GrantedAuthority> authorities = convertToAuthority(roleList);
-
+            System.out.println("==== 使用者登入 Debug ====");
+            System.out.println("帳號: " + username);
+            System.out.println("資料庫密碼: " + memberPassword);
+            System.out.println("權限: " + authorities);
             // 轉換成 Spring Security 指定的 User 格式
             return new User(memberEmail, memberPassword, authorities);
         }

@@ -7,7 +7,7 @@
 <body>
 <h1>使用者登入</h1>
 
-<form th:action="@{/login}" method="post">
+<form id="loginForm">
     <div>
         <label for="username">帳號：</label>
         <input type="text" id="username" name="username" required />
@@ -29,10 +29,27 @@
 </div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('error')) {
-        alert("登入失敗，請確認帳號與密碼！");
-    }
+    document.getElementById("loginForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const email = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("jwt", data.token);
+            alert("登入成功！");
+            window.location.href = "/products"; // 導向首頁或商品頁
+        } else {
+            alert("登入失敗！");
+        }
+    });
 </script>
 </body>
 </html>

@@ -1,15 +1,26 @@
 package com.chenhao.springmall.security;
 
+import com.chenhao.springmall.jwt.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.chenhao.springmall.constant.RoleConstants.*;
 
@@ -17,6 +28,13 @@ import static com.chenhao.springmall.constant.RoleConstants.*;
 @EnableWebSecurity
 @Configuration
 public class MySecurityConfig {
+    @Autowired
+    private JwtAuthenticationFilter jwtFilter;
+
+    @Autowired
+    @Lazy
+    private MyUserDetailsService myUserDetailsService;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         //return NoOpPasswordEncoder.getInstance();
@@ -28,15 +46,11 @@ public class MySecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/products", true)
-                        .failureUrl("/login?error")
-                        .permitAll()
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(request -> request
                         //創建帳號
-                        .requestMatchers("/register").permitAll()
+                        .requestMatchers("/","/login", "/register", "/api/login").permitAll()
                         //操作帳號
                         .requestMatchers("/members/**").hasRole(ADMIN)
                         //查詢指定商品、商品清單
@@ -44,11 +58,24 @@ public class MySecurityConfig {
                         //操作商品
                         .requestMatchers("/products/**").hasAnyRole(MERCHANT,ADMIN)
                         // 管理員專用
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole(ADMIN)
                         .anyRequest().denyAll()
                 )
+                .userDetailsService(myUserDetailsService)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
 
+
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(myUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+
+        return new ProviderManager(provider);
     }
 
 
