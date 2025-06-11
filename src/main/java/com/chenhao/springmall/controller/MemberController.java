@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,25 +29,27 @@ public class MemberController {
         return "login";
     }
 
+
     @GetMapping("/register")
-    public String registerPage(Model model) {
+    public String showRegisterPage(Model model) {
+        model.addAttribute("memberRegisterRequest", new MemberRegisterRequest());
         return "register";
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute @Valid MemberRegisterRequest memberRegisterRequest,
-                           Model model) {
-        try {
-            Integer userId = memberService.register(memberRegisterRequest);
-            Member member = memberService.getMemberById(userId);
-            model.addAttribute("registerSuccess", true); // 註冊成功
-            return "register"; // JS 處理 alert 與跳轉
-        } catch (Exception e) {
-            model.addAttribute("registerSuccess", false); // 註冊失敗
-            return "register"; // 停留註冊頁面
+    public String register(
+            @ModelAttribute("memberRegisterRequest") @Valid MemberRegisterRequest request,
+            BindingResult bindingResult,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "register"; // 回到頁面並顯示錯誤
         }
 
-
+        Integer userId = memberService.register(request);
+        Member member = memberService.getMemberById(userId);
+        model.addAttribute("success", true);
+        return "redirect:/login";
     }
 
 

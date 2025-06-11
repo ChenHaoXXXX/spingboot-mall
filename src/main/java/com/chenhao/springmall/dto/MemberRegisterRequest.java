@@ -11,7 +11,7 @@ public class MemberRegisterRequest {
     @NotBlank
     private String password;
 
-    private String name;
+    private String name = "";
 
     public String getEmail() {
         return email;

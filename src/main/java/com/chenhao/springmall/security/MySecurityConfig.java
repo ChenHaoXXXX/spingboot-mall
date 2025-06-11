@@ -45,19 +45,19 @@ public class MySecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
                 .csrf(csrf -> csrf.disable())
-                .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 .authorizeHttpRequests(request -> request
-                        //創建帳號
-                        .requestMatchers("/","/login", "/register", "/api/login").permitAll()
-                        //操作帳號
+
+                        // 開放路由
+                        .requestMatchers("/", "/login", "/register", "/api/login", "/api/hello").permitAll()
+                        // 讓所有人都能查詢商品
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+
+                        // 商品操作限商家與管理員
+                        .requestMatchers("/products/**").hasAnyRole(MERCHANT, ADMIN)
+
+                        // 管理帳號、後台
                         .requestMatchers("/members/**").hasRole(ADMIN)
-                        //查詢指定商品、商品清單
-                        .requestMatchers(HttpMethod.GET,"/products/*","/products").hasAnyRole(NORMAL_MEMBER,MERCHANT,ADMIN)
-                        //操作商品
-                        .requestMatchers("/products/**").hasAnyRole(MERCHANT,ADMIN)
-                        // 管理員專用
                         .requestMatchers("/admin/**").hasRole(ADMIN)
                         .anyRequest().denyAll()
                 )
