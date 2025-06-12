@@ -50,11 +50,11 @@ public class MySecurityConfig {
                         // 開放路由
                         .requestMatchers("/", "/login", "/register", "/api/login","api/register").permitAll()
                         // 讓所有人都能查詢商品
-                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/products/**","/products").permitAll()
                         //測試JWT
                         .requestMatchers("/api/hello").authenticated()
                         // 商品操作限商家與管理員
-                        .requestMatchers("/products/**").hasAnyRole(MERCHANT, ADMIN)
+                        .requestMatchers("api/products/**").hasAnyRole(MERCHANT, ADMIN)
 
                         // 管理帳號、後台
                         .requestMatchers("/members/**").hasRole(ADMIN)

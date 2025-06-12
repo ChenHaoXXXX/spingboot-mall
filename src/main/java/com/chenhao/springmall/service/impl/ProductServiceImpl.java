@@ -1,15 +1,19 @@
 package com.chenhao.springmall.service.impl;
 
+import com.chenhao.springmall.constant.ProductCategory;
 import com.chenhao.springmall.dto.ProductQueryParams;
 import com.chenhao.springmall.dto.ProductRequest;
 import com.chenhao.springmall.model.Product;
 import com.chenhao.springmall.repository.ProductRepository;
 import com.chenhao.springmall.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class ProductServiceImpl implements ProductService {
@@ -18,13 +22,22 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Override
-    public Integer countProduct(ProductQueryParams productQueryParams) {
-        return  productRepository.findAll().size();
-    }
+    public Page<Product> getProducts(ProductQueryParams params, Pageable pageable) {
+        Specification<Product> spec = (root, query, cb) -> {
+            if (params.getCategory() != null) {
+                return cb.equal(root.get("category"), params.getCategory());
+            }
+            if (params.getSearch() != null && !params.getSearch().isEmpty()) {
+                String searchPattern = "%" + params.getSearch().toLowerCase() + "%";
+                return cb.or(
+                    cb.like(cb.lower(root.get("productName")), searchPattern),
+                    cb.like(cb.lower(root.get("description")), searchPattern)
+                );
+            }
+            return null;
+        };
 
-    @Override
-    public List<Product> getProducts(ProductQueryParams params) {
-        return productRepository.findAll();
+        return productRepository.findAll(spec, pageable);
     }
 
     @Override
@@ -33,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Integer createProduct(ProductRequest productRequest) {
         Product product = new Product();
         product.setProductName(productRequest.getProductName());
@@ -45,14 +59,16 @@ public class ProductServiceImpl implements ProductService {
         Date now = new Date();
         product.setCreatedDate(now);
         product.setLastModifiedDate(now);
-        Integer productId = productRepository.save(product).getProductId();
-        return productId;
+        
+        return productRepository.save(product).getProductId();
     }
 
     @Override
-        public Product updateProduct(Integer productId, ProductRequest productRequest) {
+    @Transactional
+    public Product updateProduct(Integer productId, ProductRequest productRequest) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("找不到商品 ID: " + productId));
+        
         product.setProductName(productRequest.getProductName());
         product.setPrice(productRequest.getPrice());
         product.setCategory(productRequest.getCategory());
@@ -60,15 +76,16 @@ public class ProductServiceImpl implements ProductService {
         product.setImageUrl(productRequest.getImageUrl());
         product.setStock(productRequest.getStock());
         product.setLastModifiedDate(new Date());
-        productRepository.save(product);
-        return product;
+        
+        return productRepository.save(product);
     }
 
     @Override
+    @Transactional
     public void deleteProductById(Integer productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("找不到商品，ID: " + productId));
+        if (!productRepository.existsById(productId)) {
+            throw new IllegalArgumentException("找不到商品，ID: " + productId);
+        }
         productRepository.deleteById(productId);
-
     }
 }

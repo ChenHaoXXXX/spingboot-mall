@@ -3,13 +3,11 @@ package com.chenhao.springmall.service;
 import com.chenhao.springmall.dto.ProductQueryParams;
 import com.chenhao.springmall.dto.ProductRequest;
 import com.chenhao.springmall.model.Product;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
-    Integer countProduct(ProductQueryParams productQueryParams);
-
-    List<Product> getProducts(ProductQueryParams productQueryParams);
+    Page<Product> getProducts(ProductQueryParams productQueryParams, Pageable pageable);
 
     Product getProductById(Integer productId);
 
