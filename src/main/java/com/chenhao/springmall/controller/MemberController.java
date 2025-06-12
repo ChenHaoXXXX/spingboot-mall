@@ -16,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -23,35 +24,26 @@ public class MemberController {
     @Autowired
     private MemberService memberService;
 
-
     @GetMapping("/login")
     public String loginPage(Model model) {
         return "login";
     }
 
-
     @GetMapping("/register")
     public String showRegisterPage(Model model) {
-        model.addAttribute("memberRegisterRequest", new MemberRegisterRequest());
         return "register";
     }
 
-    @PostMapping("/register")
-    public String register(
-            @ModelAttribute("memberRegisterRequest") @Valid MemberRegisterRequest request,
-            BindingResult bindingResult,
-            Model model) {
-
-        if (bindingResult.hasErrors()) {
-            return "register"; // 回到頁面並顯示錯誤
+    @PostMapping("/api/register")
+    @ResponseBody
+    public ResponseEntity<?> registerApi(@RequestBody @Valid MemberRegisterRequest request) {
+        try {
+            Integer userId = memberService.register(request);
+            return ResponseEntity.ok().body(Map.of("message", "註冊成功", "userId", userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
-
-        Integer userId = memberService.register(request);
-        Member member = memberService.getMemberById(userId);
-        model.addAttribute("success", true);
-        return "redirect:/login";
     }
-
 
     @GetMapping("/members/{memberId}")
     public String getMemberById(@PathVariable Integer memberId,Model model){
@@ -59,11 +51,6 @@ public class MemberController {
         model.addAttribute("member", member);
         return "admin";
     }
-//
-//    public List<Product> getProducts(ProductQueryParams params) {
-//
-//    }
-
 
     @PutMapping("/members/{memberId}")
     public ResponseEntity<Member> modifyUserAccount(@RequestBody @Valid MemberRegisterRequest memberRegisterRequest,
@@ -84,6 +71,8 @@ public class MemberController {
         return "admin";
     }
 
-
+//    public List<Product> getProducts(ProductQueryParams params) {
+//
+//    }
 
 }

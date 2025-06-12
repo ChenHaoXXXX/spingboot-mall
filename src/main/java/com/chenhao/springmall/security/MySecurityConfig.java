@@ -45,14 +45,14 @@ public class MySecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
 
                         // 開放路由
-                        .requestMatchers("/", "/login", "/register", "/api/login", "/api/hello").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/api/login","api/register").permitAll()
                         // 讓所有人都能查詢商品
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-
+                        //測試JWT
+                        .requestMatchers("/api/hello").authenticated()
                         // 商品操作限商家與管理員
                         .requestMatchers("/products/**").hasAnyRole(MERCHANT, ADMIN)
 

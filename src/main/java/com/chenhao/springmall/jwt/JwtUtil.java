@@ -5,21 +5,31 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
 @Component
 public class JwtUtil {
+
+    @Value("${jwt.secret}")
+    private String secret;
+
     private Key key;
     private final long EXPIRATION_TIME = 86400000; // 1 day
 
     @PostConstruct
     public void init() {
-        // 自動產生安全的 256-bit key
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        try {
+            this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        } catch (Exception e) {
+            System.err.println("JWT 初始化錯誤: " + e.getMessage());
+            throw e;
+        }
     }
 
     public String generateToken(String username, List<String> roles) {
