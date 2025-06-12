@@ -45,6 +45,12 @@ public class ProductController {
         return "redirect:/products";
     }
 
+    @GetMapping("/product-form")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
+    public String showProductForm() {
+        return "product-form";
+    }
+
     // 顯示商品列表頁面
     @GetMapping("/products")
     public String showProductsPage(Model model, Authentication authentication) {
@@ -174,4 +180,6 @@ public class ProductController {
                                  auth.equals("ROLE_NORMAL_MEMBER") || 
                                  auth.equals("ROLE_MERCHANT"));
     }
+
+
 }
