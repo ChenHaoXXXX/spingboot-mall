@@ -46,6 +46,9 @@ public class MySecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(request -> request
+                        // Swagger UI 相關路徑
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        
                         // 開放路由
                         .requestMatchers("/", "/login", "/register", "/api/login", "/api/register").permitAll()
 

@@ -5,6 +5,9 @@ import com.chenhao.springmall.dto.ProductQueryParams;
 import com.chenhao.springmall.dto.ProductRequest;
 import com.chenhao.springmall.model.Product;
 import com.chenhao.springmall.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,8 @@ import java.util.Map;
 import java.util.Collection;
 
 @Controller
+@Tag(name = "商品管理", description = "商品的查詢、新增、更新與刪除")
+@SecurityRequirement(name = "bearerAuth") // 所有方法都套用 JWT 驗證
 public class ProductController {
 //    @GetMapping("/products")
 //    public String welcome(Authentication authentication) {
@@ -46,6 +51,7 @@ public class ProductController {
     }
 
     // 顯示商品列表頁面
+    @Operation(summary = " 顯示商品列表頁面")
     @GetMapping("/products")
     public String showProductsPage(Model model, Authentication authentication) {
         // 獲取初始商品數據
@@ -72,6 +78,7 @@ public class ProductController {
     }
 
     // 顯示新增商品頁面
+    @Operation(summary = " 顯示新增商品頁面")
     @GetMapping("/products/new")
     public String showNewProductPage(Model model) {
         model.addAttribute("categories", ProductCategory.values());
@@ -79,6 +86,7 @@ public class ProductController {
     }
 
     // 顯示編輯商品頁面
+    @Operation(summary = " 顯示編輯商品頁面")
     @GetMapping("/products/{productId}/edit")
     public String showEditProductPage(@PathVariable Integer productId, Model model) {
         Product product = productService.getProductById(productId);
@@ -91,6 +99,7 @@ public class ProductController {
         return "product-update";
     }
 
+    @Operation(summary = "查詢所有商品")
     // 獲取商品列表 API
     @GetMapping("/api/products")
     @ResponseBody
@@ -127,6 +136,7 @@ public class ProductController {
     }
 
     // 獲取單個商品 API
+    @Operation(summary = " 獲取指定商品")
     @GetMapping("/api/products/{productId}")
     @ResponseBody
     public ResponseEntity<?> getProduct(@PathVariable Integer productId) {
@@ -143,6 +153,7 @@ public class ProductController {
     }
 
     // 創建商品 API
+    @Operation(summary = " 創建商品 API")
     @PostMapping("/api/products")
     @ResponseBody
 //    @PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
@@ -157,6 +168,7 @@ public class ProductController {
     }
 
     // 更新商品 API
+    @Operation(summary = " 更新商品 API")
     @PutMapping("/api/products/{productId}")
     @ResponseBody
     //@PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
@@ -173,6 +185,7 @@ public class ProductController {
     }
 
     // 刪除商品 API
+    @Operation(summary = " 刪除商品")
     @DeleteMapping("/api/products/{productId}")
     @ResponseBody
     @PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
