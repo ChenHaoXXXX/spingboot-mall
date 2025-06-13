@@ -46,26 +46,31 @@ public class MySecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(request -> request
-
                         // 開放路由
-                        .requestMatchers("/", "/login", "/register", "/api/login","api/register").permitAll()
-                        // 讓所有人都能查詢商品
-                        .requestMatchers(HttpMethod.GET, "api/products/**","/products").permitAll()
-                        //測試JWT
-                        .requestMatchers("/api/hello").authenticated()
-                        // 商品操作限商家與管理員
-                        .requestMatchers("api/products/**").hasAnyRole(MERCHANT, ADMIN)
+                        .requestMatchers("/", "/login", "/register", "/api/login", "/api/register").permitAll()
 
-                        // 管理帳號、後台
-                        .requestMatchers("/members/**").hasRole(ADMIN)
-                        .requestMatchers("/admin/**").hasRole(ADMIN)
-                        .anyRequest().denyAll()
+                        
+                        // 商品相關
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers("/products").permitAll()
+                        // 新增商品頁面和API
+                        .requestMatchers("/products/**").permitAll()
+                       // .requestMatchers("/products/new").hasAnyRole(MERCHANT, ADMIN)
+                        .requestMatchers( "/api/products/**").permitAll()
+                        //.requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyRole(MERCHANT, ADMIN)
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").permitAll()
+                        //.requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole(MERCHANT, ADMIN)
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole(MERCHANT, ADMIN)
+                        
+                        // 管理功能
+                        .requestMatchers("/members/**", "/admin/**").hasRole(ADMIN)
+                        
+                        // 其他請求
+                        .anyRequest().authenticated()
                 )
                 .userDetailsService(myUserDetailsService)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-
-
     }
 
 

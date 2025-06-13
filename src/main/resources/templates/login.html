@@ -78,6 +78,7 @@
                 data: JSON.stringify({ email: email, password: password }),
                 success: function (data) {
                     localStorage.setItem("jwt", data.token);//把 JWT 存進瀏覽器中
+                    console.log(data.token)
                     window.location.href = "/products";
                 },
                 error: function (xhr) {

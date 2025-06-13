@@ -71,6 +71,26 @@ public class ProductController {
         return "product-list";
     }
 
+    // 顯示新增商品頁面
+    @GetMapping("/products/new")
+    public String showNewProductPage(Model model) {
+        model.addAttribute("categories", ProductCategory.values());
+        return "product-form";
+    }
+
+    // 顯示編輯商品頁面
+    @GetMapping("/products/{productId}/edit")
+    public String showEditProductPage(@PathVariable Integer productId, Model model) {
+        Product product = productService.getProductById(productId);
+        if (product == null) {
+            return "redirect:/products";
+        }
+        
+        model.addAttribute("product", product);
+        model.addAttribute("categories", ProductCategory.values());
+        return "product-update";
+    }
+
     // 獲取商品列表 API
     @GetMapping("/api/products")
     @ResponseBody
@@ -125,7 +145,7 @@ public class ProductController {
     // 創建商品 API
     @PostMapping("/api/products")
     @ResponseBody
-    @PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
     public ResponseEntity<?> createProduct(@RequestBody @Valid ProductRequest productRequest) {
         try {
             Integer id = productService.createProduct(productRequest);
@@ -139,7 +159,7 @@ public class ProductController {
     // 更新商品 API
     @PutMapping("/api/products/{productId}")
     @ResponseBody
-    @PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
+    //@PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
     public ResponseEntity<?> updateProduct(
             @PathVariable Integer productId,
             @RequestBody @Valid ProductRequest productRequest
